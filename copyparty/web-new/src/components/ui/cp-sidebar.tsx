@@ -1,6 +1,5 @@
 import {
   Sidebar,
-  SidebarHeader,
   SidebarContent,
   SidebarGroup,
   SidebarGroupLabel,
@@ -9,16 +8,22 @@ import {
   SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubItem,
-  SidebarMenuSubButton,
 } from '../shadcn/sidebar'
-import { ChevronRight, Command, FileIcon } from 'lucide-react'
+import { ChevronRight, FileIcon } from 'lucide-react'
 import {
   Collapsible,
   CollapsibleTrigger,
   CollapsibleContent,
 } from '../shadcn/collapsible'
 
-const items = [
+type MenuItem = {
+  title: string
+  url?: string
+  isActive?: boolean
+  items?: MenuItem[]
+}
+
+const items: MenuItem[] = [
   {
     title: 'Home',
     isActive: true,
@@ -26,6 +31,16 @@ const items = [
       {
         title: 'Documents',
         url: '/',
+        items: [
+          {
+            title: 'PDFs',
+            url: '/docs/pdfs',
+          },
+          {
+            title: 'Word Docs',
+            url: '/docs/word',
+          },
+        ],
       },
       {
         title: 'Images',
@@ -34,6 +49,63 @@ const items = [
     ],
   },
 ]
+
+const MenuItem = ({ item, isSubItem = false }: { item: MenuItem; isSubItem?: boolean }) => {
+  if (item.items && item.items.length > 0) {
+    const content = (
+      <>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton tooltip={item.title}>
+            <FileIcon className="mr-2" />
+            <span>{item.title}</span>
+            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            {item.items.map((subItem) => (
+              <SidebarMenuSubItem key={subItem.title}>
+                <MenuItem item={subItem} isSubItem={true} />
+              </SidebarMenuSubItem>
+            ))}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </>
+    )
+
+    if (isSubItem) {
+      return (
+        <Collapsible
+          defaultOpen={item.isActive}
+          className="group/collapsible w-full"
+        >
+          {content}
+        </Collapsible>
+      )
+    }
+
+    return (
+      <Collapsible
+        asChild
+        defaultOpen={item.isActive}
+        className="group/collapsible"
+      >
+        <SidebarMenuItem>
+          {content}
+        </SidebarMenuItem>
+      </Collapsible>
+    )
+  }
+
+  return (
+    <SidebarMenuButton asChild>
+      <a href={item.url || '#'}>
+        <FileIcon className="mr-2" />
+        <span>{item.title}</span>
+      </a>
+    </SidebarMenuButton>
+  )
+}
 
 const CpSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
   return (
@@ -46,35 +118,7 @@ const CpSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
           <SidebarGroupLabel>Files</SidebarGroupLabel>
           <SidebarMenu>
             {items.map((item) => (
-              <Collapsible
-                key={item.title}
-                asChild
-                defaultOpen={item.isActive}
-                className="group/collapsible"
-              >
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title}>
-                      <FileIcon className="mr-2" />
-                      <span>{item.title}</span>
-                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {item.items?.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
-                              <span>{subItem.title}</span>
-                            </a>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
+              <MenuItem key={item.title} item={item} />
             ))}
           </SidebarMenu>
         </SidebarGroup>
