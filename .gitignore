@@ -6,6 +6,7 @@ MANIFEST.in
 MANIFEST
 copyparty.egg-info/
 .venv/
+venv
 
 /buildenv/
 /build/
@@ -43,3 +44,6 @@ scripts/docker/*.err
 
 # nix build output link
 result
+
+#web
+.vite
