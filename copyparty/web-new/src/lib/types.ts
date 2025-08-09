@@ -82,3 +82,13 @@ export interface ShareCreateRequest {
   exp?: number; // minutes
 }
 
+// Normalized FS node used by UI consumers
+export interface FsNode {
+  title: string
+  href?: string
+  vpath: string
+  isDir: boolean
+  children?: FsNode[]
+  loaded?: boolean
+}
+

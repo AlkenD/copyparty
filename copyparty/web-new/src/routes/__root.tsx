@@ -5,26 +5,49 @@ import Navbar from '@/components/ui/cp-navbar'
 import { ThemeProvider } from '@/components/shadcn/theme-provider'
 import { SidebarInset, SidebarProvider } from '@/components/shadcn/sidebar'
 import CpSidebar from '@/components/ui/cp-sidebar'
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/shadcn/resizable'
+import * as React from 'react'
 
 export const Route = createRootRoute({
-  component: () => (
+  component: () => {
+    const [sidebarPct, setSidebarPct] = React.useState<number>(22)
+
+    return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <div className="[--header-height:calc(96px)]">
-        <SidebarProvider className="flex flex-col">
+      <div className="flex h-svh flex-col">
+        <SidebarProvider
+          className="flex h-full flex-col"
+          style={{ ['--sidebar-width' as any]: `${sidebarPct}%` }}
+        >
           <Navbar />
-          <div className="flex flex-1">
-            <CpSidebar />
-            <SidebarInset>
-              <main className="flex flex-1 flex-col gap-4 p-4">
-                <Outlet />
-                <TanStackRouterDevtools />
-              </main>
-            </SidebarInset>
-          </div>
+          <ResizablePanelGroup direction="horizontal" className="flex flex-1 min-h-0 p-4 pt-0">
+            <ResizablePanel
+              defaultSize={22}
+              minSize={12}
+              maxSize={40}
+              onResize={(size) => setSidebarPct(size)}
+            >
+              <CpSidebar style={{ ['--sidebar-width' as any]: `${sidebarPct}%` }} />
+            </ResizablePanel>
+            <ResizableHandle withHandle className="z-20" />
+            <ResizablePanel minSize={40}>
+              <SidebarInset>
+                <main className="flex flex-1 flex-col gap-4 p-4">
+                  <Outlet />
+                  <TanStackRouterDevtools />
+                </main>
+              </SidebarInset>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </SidebarProvider>
       </div>
     </ThemeProvider>
-  ),
+    )
+  },
   notFoundComponent: () => (
     <div className="flex items-center justify-center">
       <div className="text-center">

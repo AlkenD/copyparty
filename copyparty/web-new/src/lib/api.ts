@@ -5,6 +5,7 @@ import type {
   HandshakeResponse,
   UploadOptions,
   ShareCreateRequest,
+  FsNode,
 } from "./types";
 
 // Basic API client for the Copyparty server, intended for same-origin usage.
@@ -42,6 +43,43 @@ export class CopypartyClient {
       throw new Error(`Listing failed: ${rsp.status}${detail ? ` - ${detail}` : ''}`)
     }
     return (await rsp.json()) as ListingResponse;
+  }
+
+  // High-level: list and normalize into FsNode[]
+  async listNodes(vpath: string, opts?: { dots?: boolean; filekey?: string }): Promise<FsNode[]> {
+    const ls = await this.list(vpath, opts)
+    const base = vpath.endsWith('/') ? vpath : `${vpath}/`
+    const nameFromHref = (href: string): string => {
+      const noQuery = href.split('?')[0]
+      const parts = noQuery.split('/').filter(Boolean)
+      return decodeURIComponent(parts[parts.length - 1] || '')
+    }
+    const normalizeVpath = (parent: string, child: string, isDir: boolean): string => {
+      const p = parent.endsWith('/') ? parent.slice(0, -1) : parent
+      const vp = `${p}/${child}`
+      return isDir ? `${vp}/` : vp
+    }
+    const dirs: FsNode[] = (ls.dirs || []).map((d) => {
+      const title = nameFromHref(d.href)
+      return {
+        title,
+        href: d.href.startsWith('/') ? d.href : `/${d.href}`,
+        vpath: normalizeVpath(base, title, true),
+        isDir: true,
+        children: [],
+        loaded: false,
+      }
+    })
+    const files: FsNode[] = (ls.files || []).map((f) => {
+      const title = nameFromHref(f.href)
+      return {
+        title,
+        href: f.href.startsWith('/') ? f.href : `/${f.href}`,
+        vpath: normalizeVpath(base, title, false),
+        isDir: false,
+      }
+    })
+    return [...dirs, ...files]
   }
 
   // Text search
