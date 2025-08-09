@@ -64,3 +64,63 @@ code {
     @apply bg-background text-foreground;
   }
 }
+
+/* Make the custom scrollbar transparent while the resizer handle is hovered or dragging (preserve space/styles) */
+[data-slot="resizable-panel-group"]:has(
+  [data-slot="resizable-handle"]:hover,
+  [data-slot="resizable-handle"]:active,
+  [data-slot="resizable-handle"][data-resize-handle-active],
+  [data-slot="resizable-handle"][data-panel-resize-handle-active]
+) .custom-scrollbar {
+  /* Firefox: keep width, hide thumb by making it transparent */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+[data-slot="resizable-panel-group"]:has(
+  [data-slot="resizable-handle"]:hover,
+  [data-slot="resizable-handle"]:active,
+  [data-slot="resizable-handle"][data-resize-handle-active],
+  [data-slot="resizable-handle"][data-panel-resize-handle-active]
+) .custom-scrollbar::-webkit-scrollbar-thumb {
+  /* WebKit: keep thumb size/shape but make it invisible */
+  background-color: transparent;
+  border-color: transparent;
+}
+[data-slot="resizable-panel-group"]:has(
+  [data-slot="resizable-handle"]:hover,
+  [data-slot="resizable-handle"]:active,
+  [data-slot="resizable-handle"][data-resize-handle-active],
+  [data-slot="resizable-handle"][data-panel-resize-handle-active]
+) .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+@layer utilities {
+  /* Custom scrollbar for scrollable areas */
+  .custom-scrollbar {
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--sidebar-border)) transparent;
+    scrollbar-gutter: stable both-edges;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--sidebar-border));
+    border-radius: 9999px;
+    border: 2px solid transparent; /* creates padding around thumb */
+    background-clip: content-box;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    /* Slightly stronger on hover */
+    background-color: hsl(var(--sidebar-border));
+    filter: brightness(0.9);
+  }
+}
