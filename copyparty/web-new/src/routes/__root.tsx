@@ -26,15 +26,15 @@ export const Route = createRootRoute({
     </ThemeProvider>
   ),
   notFoundComponent: () => (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex items-center justify-center">
       <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold text-gray-900">
+        <h1 className="mb-4 text-4xl font-bold text-gray-100">
           404 - Page Not Found
         </h1>
         <p className="mb-8 text-lg text-gray-600">
           The page you're looking for doesn't exist.
         </p>
-        <a href="/" className="text-blue-600 underline hover:text-blue-800">
+        <a href="/" className="text-blue-200 underline hover:text-blue-200">
           Go back to home
         </a>
       </div>
